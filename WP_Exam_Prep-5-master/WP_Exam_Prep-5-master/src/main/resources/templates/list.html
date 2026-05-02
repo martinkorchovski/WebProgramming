@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Startup List</title>
+</head>
+<body>
+
+<div>
+    <!-- The form below should invoke the method StartupController.listAll -->
+    <form id="filter-form">
+        <label for="name">Startup Name</label>
+        <input id="name" type="text" name="name"/>
+
+        <label for="valuation">Valuation (in millions)</label>
+        <input id="valuation" type="number" name="valuation"/>
+
+        <label for="yearFounded">Year Founded</label>
+        <input id="yearFounded" type="number" min="2000" name="yearFounded"/>
+
+        <label for="industry">Industry</label>
+        <select id="industry" name="industry">
+            <option value="">All</option>
+            <!-- For each Industry you should have one <option> like below  -->
+            <option th:each="ind : ${industries}"
+                    th:value="${ind}"
+                    th:text="${ind}"
+            >[industry]
+            </option>
+        </select>
+
+        <label for="founderId">Founder</label>
+        <select id="founderId" name="founderId">
+            <option value="">All</option>
+            <!-- For each founder you should have one <option> like below  -->
+            <option th:each="founder : ${founders}"
+                    th:value="${founder.id}"
+                    th:text="${founder.name}"
+            >[founder.name]
+            </option>
+        </select>
+
+        <button id="filter" type="submit">Filter</button>
+    </form>
+
+    <div>
+        <!-- StartupController.showAdd -->
+        <th:block sec:authorize="hasRole('ADMIN')">
+            <a class="add-item" href="/startups/add">Add new startup</a>
+        </th:block>
+    </div>
+
+    <table>
+        <tr>
+            <th>Startup Name</th>
+            <th>Valuation</th>
+            <th>Year Founded</th>
+            <th>Industry</th>
+            <th>Founder</th>
+            <th>Active/Deactivated</th>
+            <th>Actions</th>
+        </tr>
+        <!-- For each startup you should have one <tr> like below -->
+        <tr class="item" th:each="startUp : ${page.getContent()}">
+            <td th:text="${startUp.name}">[startup.name]</td>
+            <td th:text="${startUp.valuation}">[startup.valuation]</td>
+            <td th:text="${startUp.yearFounded}">[startup.yearFounded]</td>
+            <td th:text="${startUp.industry}">[startup.industry]</td>
+            <td th:text="${startUp.founder.name}">[startup.founder.name]</td>
+            <td th:text="${startUp.isActive() ? 'ACTIVE' : 'DEACTIVATED'}">[startup.active] -> ACTIVE/DEACTIVATED</td>
+            <td>
+                <!-- StartupController.edit -->
+                <th:block sec:authorize="hasRole('ADMIN')">
+                    <a class="edit-item" th:href="@{'/startups/edit/{id}' (id=${startUp.getId()})}">Edit</a>
+                </th:block>
+
+                <!-- StartupController.delete -->
+                <th:block sec:authorize="hasRole('ADMIN')">
+                    <form th:action="@{'/startups/delete/{id}' (id=${startUp.getId()})}"
+                          th:method="POST">
+                        <button type="submit" class="delete-item">Delete</button>
+                    </form>
+                </th:block>
+
+                <!-- StartupController.close -->
+                <th:block sec:authorize="hasRole('ADMIN')" th:if="${startUp.isActive()}">
+                    <form th:action="@{'/startups/deactivate/{id}' (id=${startUp.getId()})}"
+                          th:method="POST">
+                        <button type="submit" class="close-item">Deactivate</button>
+                    </form>
+                </th:block>
+            </td>
+        </tr>
+    </table>
+
+    <div th:include="paging :: pageSection(${page})"></div>
+
+</div>
+
+<div>
+    <ul id="nav">
+        <li><a href="/">Home</a></li>
+        <li><a href="/login">Login</a></li>
+        <li><a href="/logout">Logout</a></li>
+    </ul>
+</div>
+
+</body>
+</html>
