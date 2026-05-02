@@ -1,0 +1,7 @@
+package mk.ukim.finki.wp.kol2025g3.model.exceptions;
+
+public class InvalidExpenseIdException extends RuntimeException {
+    public InvalidExpenseIdException(Long expenseId) {
+        super("Invalid expense id: " + expenseId);
+    }
+}
